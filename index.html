@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0d0d0d" />
+  <meta name="description" content="Offline Burner Contact Manager — Zero cloud. Auto-wipe 30 days. Panic: shake ×3" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Burner Contacts" />
+  <title>Tactical Burner Contacts</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0d;
+      --surface: #1a1a1a;
+      --surface2: #242424;
+      --border: #2e2e2e;
+      --accent: #00ff88;
+      --accent-dim: #00cc6a;
+      --danger: #ff3c3c;
+      --danger-dim: #cc2020;
+      --text: #e8e8e8;
+      --text-muted: #777;
+      --radius: 8px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px 10px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    header p.tagline {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      letter-spacing: 0.02em;
+    }
+
+    main {
+      flex: 1;
+      padding: 16px;
+      max-width: 620px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* ── Add-contact form ── */
+    details#add-form {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+
+    details#add-form summary {
+      cursor: pointer;
+      padding: 12px 14px;
+      font-weight: 600;
+      color: var(--accent);
+      user-select: none;
+      list-style: none;
+    }
+
+    details#add-form summary::before {
+      content: '+ ';
+    }
+
+    details[open]#add-form summary::before {
+      content: '− ';
+    }
+
+    .form-body {
+      padding: 0 14px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .form-row input { flex: 1; }
+
+    input, textarea {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      padding: 9px 12px;
+      font-size: 0.95rem;
+      width: 100%;
+      outline: none;
+      transition: border-color .15s;
+    }
+
+    input:focus, textarea:focus { border-color: var(--accent); }
+
+    textarea { resize: vertical; min-height: 60px; }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 9px 18px;
+      transition: opacity .15s, transform .08s;
+    }
+
+    button:active { transform: scale(0.96); }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .btn-primary:hover { background: var(--accent-dim); }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .btn-danger:hover { background: var(--danger-dim); }
+
+    .btn-ghost {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover { background: var(--border); }
+
+    .btn-sm {
+      font-size: 0.78rem;
+      padding: 5px 11px;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar input[type="search"] {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* ── Contact list ── */
+    #contact-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .contact-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .contact-info { flex: 1; min-width: 0; }
+
+    .contact-name {
+      font-weight: 700;
+      font-size: 1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .contact-phone {
+      color: var(--accent);
+      font-size: 0.9rem;
+      margin-top: 2px;
+    }
+
+    .contact-notes {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      margin-top: 4px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .contact-meta {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      margin-top: 6px;
+    }
+
+    .contact-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 40px 0;
+      font-size: 0.92rem;
+    }
+
+    /* ── QR modal ── */
+    #qr-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.85);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #qr-modal.open { display: flex; }
+
+    .qr-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      max-width: 320px;
+      width: 90%;
+    }
+
+    .qr-box h2 { font-size: 1rem; margin-bottom: 4px; }
+    .qr-box p  { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 16px; }
+
+    #qr-canvas {
+      background: #fff;
+      padding: 8px;
+      border-radius: 6px;
+      max-width: 240px;
+      width: 100%;
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 10px 20px;
+      font-size: 0.88rem;
+      z-index: 300;
+      transition: transform .25s ease, opacity .25s ease;
+      opacity: 0;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 14px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    footer a { color: var(--text-muted); }
+
+    @media (max-width: 480px) {
+      main { padding: 10px; }
+      .contact-card { padding: 10px 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>⚡ Tactical Burner Contacts</h1>
+  <p class="tagline">Zero cloud &nbsp;•&nbsp; Auto-wipe 30 days &nbsp;•&nbsp; Panic: shake ×3</p>
+</header>
+
+<main>
+  <!-- Add Contact Form -->
+  <details id="add-form">
+    <summary>Add contact</summary>
+    <div class="form-body">
+      <div class="form-row">
+        <input id="f-name"  type="text"  placeholder="Name"  autocomplete="off" />
+        <input id="f-phone" type="tel"   placeholder="Phone" autocomplete="off" />
+      </div>
+      <textarea id="f-notes" placeholder="Notes (optional)"></textarea>
+      <div class="form-actions">
+        <button class="btn-danger btn-sm" id="btn-wipe-all">WIPE ALL</button>
+        <button class="btn-primary" id="btn-add">Add</button>
+      </div>
+    </div>
+  </details>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <input type="search" id="search" placeholder="🔍  Search contacts…" autocomplete="off" />
+    <button class="btn-ghost btn-sm" id="btn-export">Export (JSON)</button>
+  </div>
+
+  <!-- Contact list -->
+  <div id="contact-list">
+    <div class="empty-state">No contacts yet.</div>
+  </div>
+</main>
+
+<!-- QR Modal -->
+<div id="qr-modal" role="dialog" aria-modal="true" aria-label="QR Code">
+  <div class="qr-box">
+    <h2 id="qr-title">vCard QR</h2>
+    <p>Tap a contact's "QR" to show a vCard QR<br>(library loads once, then cached for offline).</p>
+    <canvas id="qr-canvas"></canvas>
+    <br><br>
+    <button class="btn-ghost btn-sm" id="btn-close-qr">Close</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" role="status" aria-live="polite"></div>
+
+<footer>
+  Tip: grant Motion access for panic wipe. Long-press Delete to confirm.
+  &nbsp;|&nbsp; <a href="https://github.com/MiMindMendinc/Tactical-FieldKit" target="_blank" rel="noopener">Tactical-FieldKit</a>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  // ─── Storage helpers ───────────────────────────────────────────────────────
+  const KEY = 'tbc_contacts';
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || []; }
+    catch { return []; }
+  }
+
+  function save(contacts) {
+    localStorage.setItem(KEY, JSON.stringify(contacts));
+  }
+
+  function purgeOld(contacts) {
+    const MS30 = 30 * 24 * 60 * 60 * 1000;
+    const now  = Date.now();
+    return contacts.filter(c => (now - c.added) < MS30);
+  }
+
+  // ─── State ─────────────────────────────────────────────────────────────────
+  let contacts = purgeOld(load());
+  save(contacts);
+
+  let query = '';
+
+  // ─── Helpers ───────────────────────────────────────────────────────────────
+  function generateId() {
+    return crypto.randomUUID
+      ? crypto.randomUUID()
+      : Date.now().toString(36) + Math.random().toString(36).slice(2);
+  }
+
+  function todayISO() {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  // ─── DOM refs ──────────────────────────────────────────────────────────────
+  const fName    = document.getElementById('f-name');
+  const fPhone   = document.getElementById('f-phone');
+  const fNotes   = document.getElementById('f-notes');
+  const btnAdd   = document.getElementById('btn-add');
+  const btnWipe  = document.getElementById('btn-wipe-all');
+  const btnExp   = document.getElementById('btn-export');
+  const searchEl = document.getElementById('search');
+  const listEl   = document.getElementById('contact-list');
+  const qrModal  = document.getElementById('qr-modal');
+  const qrCanvas = document.getElementById('qr-canvas');
+  const qrTitle  = document.getElementById('qr-title');
+  const btnClQR  = document.getElementById('btn-close-qr');
+  const toastEl  = document.getElementById('toast');
+
+  // ─── Toast ─────────────────────────────────────────────────────────────────
+  let toastTimer;
+  function toast(msg, duration) {
+    clearTimeout(toastTimer);
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), duration || 2200);
+  }
+
+  // ─── Render ────────────────────────────────────────────────────────────────
+  function daysLeft(added) {
+    const ms = 30 * 24 * 60 * 60 * 1000 - (Date.now() - added);
+    return Math.max(0, Math.ceil(ms / (24 * 60 * 60 * 1000)));
+  }
+
+  function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+  }
+
+  function render() {
+    const q = query.trim().toLowerCase();
+    const filtered = q
+      ? contacts.filter(c =>
+          (c.name  || '').toLowerCase().includes(q) ||
+          (c.phone || '').toLowerCase().includes(q) ||
+          (c.notes || '').toLowerCase().includes(q))
+      : contacts;
+
+    if (!filtered.length) {
+      listEl.innerHTML = '<div class="empty-state">' +
+        (q ? 'No results for "' + esc(q) + '".' : 'No contacts yet.') + '</div>';
+      return;
+    }
+
+    listEl.innerHTML = filtered.map(c => {
+      const dl = daysLeft(c.added);
+      return `
+        <div class="contact-card" data-id="${esc(c.id)}">
+          <div class="contact-info">
+            <div class="contact-name">${esc(c.name)}</div>
+            ${c.phone ? `<div class="contact-phone">${esc(c.phone)}</div>` : ''}
+            ${c.notes ? `<div class="contact-notes">${esc(c.notes)}</div>` : ''}
+            <div class="contact-meta">Expires in ${dl} day${dl !== 1 ? 's' : ''}</div>
+          </div>
+          <div class="contact-actions">
+            <button class="btn-ghost btn-sm btn-qr"  data-id="${esc(c.id)}">QR</button>
+            <button class="btn-danger btn-sm btn-del" data-id="${esc(c.id)}">Del</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ─── Add contact ───────────────────────────────────────────────────────────
+  btnAdd.addEventListener('click', () => {
+    const name  = fName.value.trim();
+    const phone = fPhone.value.trim();
+    if (!name && !phone) { toast('Enter at least a name or phone.'); return; }
+    contacts.unshift({
+      id:    generateId(),
+      name,
+      phone,
+      notes: fNotes.value.trim(),
+      added: Date.now()
+    });
+    save(contacts);
+    fName.value = fPhone.value = fNotes.value = '';
+    document.getElementById('add-form').removeAttribute('open');
+    render();
+    toast('Contact added.');
+  });
+
+  // Enter key in inputs triggers add
+  [fName, fPhone].forEach(el => el.addEventListener('keydown', e => {
+    if (e.key === 'Enter') btnAdd.click();
+  }));
+
+  // ─── Delete (long-press on mobile, click on desktop with confirm) ─────────
+  let delTimer;
+
+  function deleteContact(id) {
+    contacts = contacts.filter(c => c.id !== id);
+    save(contacts);
+    render();
+    toast('Contact deleted.');
+  }
+
+  listEl.addEventListener('pointerdown', e => {
+    const btn = e.target.closest('.btn-del');
+    if (!btn) return;
+    delTimer = setTimeout(() => { delTimer = null; deleteContact(btn.dataset.id); }, 600);
+  });
+
+  listEl.addEventListener('pointerup', () => { clearTimeout(delTimer); delTimer = null; });
+  listEl.addEventListener('pointercancel', () => { clearTimeout(delTimer); delTimer = null; });
+
+  listEl.addEventListener('click', e => {
+    const btn = e.target.closest('.btn-del');
+    if (!btn || delTimer === null) { delTimer = undefined; return; }
+    clearTimeout(delTimer);
+    delTimer = undefined;
+    if (confirm('Delete this contact?')) deleteContact(btn.dataset.id);
+  });
+
+  // ─── Wipe all ──────────────────────────────────────────────────────────────
+  btnWipe.addEventListener('click', () => {
+    if (!contacts.length) { toast('Nothing to wipe.'); return; }
+    if (confirm('Wipe ALL contacts? This cannot be undone.')) {
+      contacts = [];
+      save(contacts);
+      render();
+      toast('All contacts wiped. 🔥');
+    }
+  });
+
+  // ─── Search ────────────────────────────────────────────────────────────────
+  searchEl.addEventListener('input', () => { query = searchEl.value; render(); });
+
+  // ─── JSON export ───────────────────────────────────────────────────────────
+  btnExp.addEventListener('click', () => {
+    if (!contacts.length) { toast('Nothing to export.'); return; }
+    const blob = new Blob([JSON.stringify(contacts, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'burner-contacts-' + todayISO() + '.json';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  });
+
+  // ─── QR Code ───────────────────────────────────────────────────────────────
+  let qrLib = null;
+
+  function makeVCard(c) {
+    return [
+      'BEGIN:VCARD', 'VERSION:3.0',
+      'FN:' + (c.name  || ''),
+      'TEL:' + (c.phone || ''),
+      'NOTE:' + (c.notes || ''),
+      'END:VCARD'
+    ].join('\n');
+  }
+
+  async function showQR(id) {
+    const c = contacts.find(x => x.id === id);
+    if (!c) return;
+
+    if (!qrLib) {
+      try {
+        // Load QRious (small, ~8 KB minified) once; cached by browser / SW
+        await new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js';
+          s.integrity = 'sha384-Dr98ddmFM6dJ7kFRsUXmDJAGKDqFZKjABaECqpnZSHkH9n1IqQ9YF7ZGzDVRK3i';
+          s.crossOrigin = 'anonymous';
+          s.onload = resolve;
+          s.onerror = reject;
+          document.head.appendChild(s);
+        });
+        qrLib = window.QRious;
+      } catch {
+        toast('QR library failed to load. Are you offline?');
+        return;
+      }
+    }
+
+    qrTitle.textContent = c.name || c.phone || 'vCard QR';
+    // eslint-disable-next-line no-new
+    new qrLib({ element: qrCanvas, value: makeVCard(c), size: 240, background: '#ffffff', foreground: '#000000', level: 'H' });
+    qrModal.classList.add('open');
+  }
+
+  listEl.addEventListener('click', e => {
+    const btn = e.target.closest('.btn-qr');
+    if (btn) showQR(btn.dataset.id);
+  });
+
+  btnClQR.addEventListener('click', () => qrModal.classList.remove('open'));
+  qrModal.addEventListener('click', e => { if (e.target === qrModal) qrModal.classList.remove('open'); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') qrModal.classList.remove('open'); });
+
+  // ─── Shake-to-wipe ─────────────────────────────────────────────────────────
+  const SHAKE_THRESHOLD  = 18;   // m/s²
+  const SHAKE_INTERVAL   = 1500; // ms — window for 3 shakes
+  const SHAKE_COUNT_NEED = 3;
+
+  let lastAcc = { x: 0, y: 0, z: 0 };
+  let shakeTimes = [];
+
+  function handleMotion(e) {
+    const acc = e.accelerationIncludingGravity || e.acceleration;
+    if (!acc) return;
+    const dx = Math.abs((acc.x || 0) - lastAcc.x);
+    const dy = Math.abs((acc.y || 0) - lastAcc.y);
+    const dz = Math.abs((acc.z || 0) - lastAcc.z);
+    lastAcc = { x: acc.x || 0, y: acc.y || 0, z: acc.z || 0 };
+    if (dx + dy + dz > SHAKE_THRESHOLD) {
+      const now = Date.now();
+      shakeTimes.push(now);
+      shakeTimes = shakeTimes.filter(t => now - t < SHAKE_INTERVAL);
+      if (shakeTimes.length >= SHAKE_COUNT_NEED) {
+        shakeTimes = [];
+        panicWipe();
+      }
+    }
+  }
+
+  function panicWipe() {
+    if (!contacts.length) return;
+    contacts = [];
+    save(contacts);
+    render();
+    toast('🚨 PANIC WIPE — All contacts destroyed.', 3500);
+  }
+
+  function initMotion() {
+    if (typeof DeviceMotionEvent === 'undefined') return;
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+      // iOS 13+ requires a user gesture
+      const btn = document.createElement('button');
+      btn.className = 'btn-ghost btn-sm';
+      btn.style.cssText = 'position:fixed;bottom:50px;right:16px;z-index:150;font-size:0.75rem;';
+      btn.textContent = '📳 Enable shake-wipe';
+      document.body.appendChild(btn);
+      btn.addEventListener('click', async () => {
+        const perm = await DeviceMotionEvent.requestPermission().catch(() => 'denied');
+        if (perm === 'granted') {
+          window.addEventListener('devicemotion', handleMotion, { passive: true });
+          btn.remove();
+          toast('Shake-wipe enabled. Shake ×3 to panic-wipe.');
+        } else {
+          toast('Motion permission denied.');
+        }
+      }, { once: true });
+    } else {
+      window.addEventListener('devicemotion', handleMotion, { passive: true });
+    }
+  }
+
+  initMotion();
+
+  // ─── Initial render ────────────────────────────────────────────────────────
+  render();
+
+})();
+</script>
+</body>
+</html>
