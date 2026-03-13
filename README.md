@@ -1,60 +1,30 @@
-# Tactical Burner Contacts
+# Tactical-BurnerContacts
 
-> Offline "burner" phonebook. No cloud. No tracking. No leaks.
+Offline burner contacts manager PWA with auto-wipe, panic delete, and vCard export.
 
-![Screenshot placeholder](screenshot.png)
+## Technical Summary
+- **Storage**: Browser localStorage, zero network requirements
+- **Security**: Configurable auto-delete (30+ days), shake-to-wipe panic button
+- **Features**: Search/filter, vCard QR export, JSON backup
+- **UI**: Dark tactical theme, vanilla JS for auditability
+- **Performance**: Service worker caching for true offline operation
 
----
+## Impact
+Enables secure communication management in high-risk scenarios, protecting operators and sources. Built for those who need guaranteed privacy.
+
+## Quick Start
+Visit [live site](https://mimindmendinc.github.io/Tactical-BurnerContacts/) or:
+```bash
+git clone https://github.com/MiMindMendinc/Tactical-BurnerContacts.git
+cd Tactical-BurnerContacts
+# Open index.html in browser
+```
 
 ## Features
-
-- 🔒 **100% client-side** — localStorage only, nothing ever leaves your device
-- ⏱ **Auto-delete after 30 days** — configurable per contact
-- 📳 **Panic wipe** — shake phone 3× within 1.5 seconds to erase everything instantly
-- 📷 **vCard QR export** — works offline after first load
-- 📦 **JSON export / import** — backup and transfer between devices
-- 🔍 **Search** — filter by name, phone, tag, or notes
-- 🌑 **Dark tactical theme** — low visibility, high contrast
-- 📲 **Installable PWA** — add to home screen, works in airplane mode
-
-Built in vanilla JS — same zero-dependency philosophy as [Tactical-FieldKit](https://github.com/MiMindMendinc/Tactical-FieldKit).
-
----
-
-## How to use
-
-1. Open `index.html` in any modern browser (or visit the GitHub Pages URL)
-2. Tap **Add to Home Screen** to install as a PWA
-3. Use it anywhere — even in airplane mode
-4. Contacts auto-expire after 30 days (or your chosen duration)
-5. Three rapid shakes triggers an instant full wipe — no confirmation needed
-
----
-
-## File structure
-
-```
-index.html     ← entire app (single file, ~760 lines)
-manifest.json  ← PWA install manifest
-sw.js          ← service worker (offline cache)
-LICENSE        ← MIT
-```
-
----
-
-## Privacy model
-
-| What | How |
-|------|-----|
-| Storage | Browser `localStorage` only |
-| Network | Zero after first load (SW cache) |
-| Cloud sync | Never |
-| Analytics | None |
-| Crash reporting | None |
-
----
+- Auto-expiring contacts
+- Panic wipe functionality
+- Offline vCard export
+- PWA installation
 
 ## License
-
-MIT License — see [LICENSE](LICENSE)  
-Built by **MichiganMindMendink**
+MIT - Privacy tools for the field.
