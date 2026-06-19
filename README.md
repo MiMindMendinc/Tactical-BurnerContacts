@@ -1,16 +1,16 @@
 # Tactical-BurnerContacts
 
-Offline burner contacts manager PWA with auto-wipe, panic delete, and vCard export.
+Local-first contact manager PWA prototype with expiry, wipe, and vCard export workflows.
 
 ## Technical Summary
-- **Storage**: Browser localStorage, zero network requirements
-- **Security**: Configurable auto-delete (30+ days), shake-to-wipe panic button
+- **Storage**: Browser localStorage; data is not encrypted by this app
+- **Data controls**: Configurable expiry and a shake-to-wipe shortcut
 - **Features**: Search/filter, vCard QR export, JSON backup
 - **UI**: Dark tactical theme, vanilla JS for auditability
-- **Performance**: Service worker caching for true offline operation
+- **Offline behavior**: The app shell is cached after a successful online load; the QR library currently comes from a CDN
 
 ## Impact
-Enables secure communication management in high-risk scenarios, protecting operators and sources. Built for those who need guaranteed privacy.
+Demonstrates privacy-minded browser UX. It is not an audited secure-communications tool and does not guarantee deletion from backups, synced browser profiles, screenshots, or forensic recovery.
 
 ## Quick Start
 Visit [live site](https://mimindmendinc.github.io/Tactical-BurnerContacts/) or:
@@ -23,7 +23,7 @@ cd Tactical-BurnerContacts
 ## Features
 - Auto-expiring contacts
 - Panic wipe functionality
-- Offline vCard export
+- Local vCard export after required assets have loaded
 - PWA installation
 
 ## License
