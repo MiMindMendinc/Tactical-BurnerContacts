@@ -1,7 +1,7 @@
 {
   "name": "Tactical Burner Contacts",
   "short_name": "BurnerCtx",
-  "description": "Offline burner contact manager. No cloud. No tracking. Auto-wipe after 30 days.",
+  "description": "Local-first contact manager prototype with expiry and wipe workflows.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0a0a0a",
